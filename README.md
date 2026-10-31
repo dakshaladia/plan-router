@@ -35,3 +35,13 @@ Run `npm test` with Node 20+. Tests compare the exact optimizer to brute-force s
 Import `dakshaladia/plan-router` into Vercel and deploy from the repository root. The included `vercel.json` selects the Other framework preset, skips installation/building, and serves `dist/`. No environment variables are required for the current demo providers.
 
 Source is in `dist/`; the folder contains the actual site assets and is intentionally tracked. Mouse-wheel and trackpad zoom are enabled over the map.
+
+## Microsoft Clarity analytics
+
+The Clarity integration is prepared but **disabled until a project ID is configured**. Create a website project in [Microsoft Clarity](https://clarity.microsoft.com/), copy the public project ID from Settings → Setup (the value after `clarity.ms/tag/`), and set `CLARITY_PROJECT_ID` in `dist/config.js`. Push the change to trigger your connected Vercel deployment. This is a public identifier, not a secret key.
+
+Visitors can allow or decline analytics, and reopen Analytics preferences in the footer. Clarity only loads after opt-in; ads storage is denied. Localhost previews are excluded. Therefore dashboard counts cover consenting visitors whose browsers allow Clarity, rather than every visitor.
+
+In Clarity, use Dashboard for visitors, sessions, and time/engagement metrics; Recordings and Heatmaps for interactions; and Smart events to see `places_search_started`, `places_search_completed`, `places_search_failed`, `location_confirmed`, `location_refined`, `stop_reordered`, `route_created`, `route_optimized`, `route_failed`, `google_maps_opened`, and `sample_loaded`. A completed search can include unresolved locations; route events require successful routing.
+
+Custom events send fixed action names only, never search text, addresses, coordinates, or directions URLs. Form, itinerary, status, and map containers are explicitly marked for masking. Review a test recording and your Clarity masking/consent settings before launch. Clarity separately collects its normal browser/session telemetry for consenting visits. Review Microsoft’s disclosure guidance for your published privacy notice.

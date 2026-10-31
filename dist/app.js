@@ -1,3 +1,4 @@
+import {initAnalytics,track} from './analytics.js';
 import {SAMPLE,parsePlaces,queryFor,candidate,optimize,googleLinks,nameMatches} from './core.js';
 import {GEOCODER,ROUTER} from './config.js';
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -32,14 +33,14 @@ async function geocode(query,locationBias){
 async function searchStop(s){try{s.error='';s.candidates=(await geocode(s.query,bias)).map(p=>({...p,matches:nameMatches(s.query,p)})).sort((a,b)=>Number(b.matches)-Number(a.matches));s.selected=s.candidates[0]||null;s.confirmed=false;}catch(e){s.error=e.message;s.candidates=[];s.selected=null;s.confirmed=false;}}
 $('plan-form').addEventListener('submit',async e=>{
   e.preventDefault();if(busy)return;const names=parsePlaces($('places').value);if(!names.length)return status('Add at least one place.',true);if(names.length>20)return status('Please use up to 20 places per plan.',true);
-  context={country:$('country').value.trim(),state:$('state').value.trim(),city:$('city').value.trim()};invalidate();stops=[];render();lock(true);status('Finding your reference city…');
+  context={country:$('country').value.trim(),state:$('state').value.trim(),city:$('city').value.trim()};track('places_search_started');invalidate();stops=[];render();lock(true);status('Finding your reference city…');
   try{
     const refs=await geocode([context.city,context.state,context.country].filter(Boolean).join(', '));bias=refs[0]||null;
     if(!bias)throw Error('Reference city not found. Check the country, state, and city, then try again.');
     const start=$('start').value.trim();const all=[...(start?[{name:start,start:true}]:[]),...names.map(name=>({name,start:false}))];
     for(let i=0;i<all.length;i++){const item=all[i];const s={...item,id:crypto.randomUUID(),query:queryFor(item.name,context),candidates:[],selected:null,confirmed:false};stops.push(s);status(`Finding location ${i+1} of ${all.length}: ${item.name}…`);await searchStop(s);render();lock(true);}
-    drawMarkers(true);status(`Review all ${stops.length} locations below. Choose the correct match and select “Use this location”. Refine or remove any missing places. Reference city biases results; check the city and region on each match.`);$('results-title').scrollIntoView({behavior:'smooth',block:'start'});
-  }catch(e){status(e.message,true);}finally{lock(false);render();}
+    track('places_search_completed');drawMarkers(true);status(`Review all ${stops.length} locations below. Choose the correct match and select “Use this location”. Refine or remove any missing places. Reference city biases results; check the city and region on each match.`);$('results-title').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){track('places_search_failed');status(e.message,true);}finally{lock(false);render();}
 });
 $('stops').addEventListener('change',e=>{if(e.target.dataset.action!=='choose')return;const s=stops.find(s=>s.id===e.target.closest('.stop').dataset.id);s.selected=s.candidates[Number(e.target.value)];s.confirmed=false;invalidate();render();});
 $('stops').addEventListener('click',async e=>{
@@ -50,7 +51,7 @@ $('stops').addEventListener('click',async e=>{
   if(action==='up'&&i>0&&!s.start&&!stops[i-1].start)[stops[i-1],stops[i]]=[stops[i],stops[i-1]];
   if(action==='down'&&i<stops.length-1&&!s.start)[stops[i],stops[i+1]]=[stops[i+1],stops[i]];
   if(action==='search'){const query=article.querySelector('.refine input').value.trim();if(!query)return status('Enter a more specific search.',true);s.query=query;lock(true);status(`Searching for ${query}…`);await searchStop(s);lock(false);}
-  render();const remaining=stops.filter(s=>!s.confirmed).length;status(remaining?`${remaining} location${remaining===1?'':'s'} still need review. Broad roads and neighborhoods use representative points; refine to an address or intersection if needed.`:stops.length<2?'Add at least two locations to build a route.':'All locations reviewed. Map this order, or optimize driving time. Use ↑ and ↓ to reorder stops.');
+  if(action==='confirm'&&s.confirmed)track('location_confirmed');if(action==='search')track('location_refined');if(action==='up'||action==='down')track('stop_reordered');render();const remaining=stops.filter(s=>!s.confirmed).length;status(remaining?`${remaining} location${remaining===1?'':'s'} still need review. Broad roads and neighborhoods use representative points; refine to an address or intersection if needed.`:stops.length<2?'Add at least two locations to build a route.':'All locations reviewed. Map this order, or optimize driving time. Use ↑ and ↓ to reorder stops.');
 });
 function coordinates(){return stops.map(s=>`${s.selected.lon},${s.selected.lat}`).join(';');}
 async function route(optimized=false){
@@ -66,13 +67,14 @@ async function route(optimized=false){
     $('summary').innerHTML=`<div><strong>${duration}</strong><small>Estimated driving time</small></div><div><strong>${Math.round(r.distance/1609.344)} mi</strong><small>Driving distance</small></div><div><strong>${stops.length}</strong><small>Reviewed locations</small></div><div class="method">${esc(method)}. First location is fixed; route ends at the final stop. No live traffic, closures, parking, or visit time included.</div>`;$('summary').hidden=false;
     const links=googleLinks(stops.map(s=>s.selected));$('maps-links').innerHTML=`<div class="links"><h3>Take your route with you ↗</h3><p>${links.length>1?'Split into mobile-friendly parts with shared endpoints. Open each part in order.':'Open your reviewed stops in Google Maps.'} Google Maps may choose different roads. Neighborhood / street points are approximate.</p>${links.map((l,i)=>`<a href="${esc(l.url)}" target="_blank" rel="noopener">${links.length>1?`Part ${i+1} · locations ${l.from}–${l.to}`:'Open in Google Maps'} ↗</a>`).join('')}</div>`;
     $('map-caption').textContent=`${stops.length} reviewed locations · ${duration} driving · ${Math.round(r.distance/1609.344)} miles`;
-    status(`Route ready. ${optimized?'The first location stays fixed. ':''}Use ↑ / ↓ to change the order, then map it again.${snap.length?'\nCheck road access: '+snap.join('; ')+'.':''}`);
-  }catch(e){status(e.message+' Your reviewed locations are preserved; you can retry.',true);}finally{lock(false);render();}
+    track(optimized?'route_optimized':'route_created');status(`Route ready. ${optimized?'The first location stays fixed. ':''}Use ↑ / ↓ to change the order, then map it again.${snap.length?'\nCheck road access: '+snap.join('; ')+'.':''}`);
+  }catch(e){track('route_failed');status(e.message+' Your reviewed locations are preserved; you can retry.',true);}finally{lock(false);render();}
 }
 $('route').addEventListener('click',()=>route());$('optimize').addEventListener('click',()=>route(true));$('fit').addEventListener('click',fitMap);
 function count(){$('line-count').textContent=`${parsePlaces($('places').value).length} places`;}
 function sample(){$('country').value='United States';$('state').value='California';$('city').value='San Francisco';$('start').value='';$('places').value=SAMPLE;count();}
-$('sample').addEventListener('click',()=>{sample();if(stops.length){stops=[];invalidate();render();status('Bay Area example loaded. Select “Find my places” to create a new itinerary.');}});$('places').addEventListener('input',count);
+$('sample').addEventListener('click',()=>{track('sample_loaded');sample();if(stops.length){stops=[];invalidate();render();status('Bay Area example loaded. Select “Find my places” to create a new itinerary.');}});$('places').addEventListener('input',count);
 // An edited plan must be re-geocoded; stale route controls should never remain active.
 $('plan-form').addEventListener('input',()=>{if(stops.length){stops=[];invalidate();render();status('Inputs changed. Select “Find my places” to refresh your itinerary.');}});
-initMap();sample();
+$('maps-links').addEventListener('click',e=>{if(e.target.closest('a'))track('google_maps_opened');});
+initAnalytics();initMap();sample();
