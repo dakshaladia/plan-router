@@ -1,4 +1,4 @@
-# Wayfarer route planner
+# Halloween Router
 
 A buildless website with live place search, an interactive map, reviewed location matches, driving-time optimization, manual ordering, and mobile-safe Google Maps direction links.
 
