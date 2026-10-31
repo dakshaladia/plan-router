@@ -60,7 +60,7 @@ async function route(optimized=false){
     status('Drawing your driving route…');const data=await json(`${ROUTER}/route/v1/driving/${coordinates()}?overview=full&geometries=geojson&steps=false`);
     if(version!==routeVersion)return;if(data.code!=='Ok'||!data.routes?.length)throw Error('No driving route connects these stops. Review access and refine or remove unreachable locations.');
     const r=data.routes[0];if(!r.geometry?.coordinates?.length||!Number.isFinite(r.distance)||!Number.isFinite(r.duration))throw Error('The routing service returned an incomplete route. Please try again.');
-    if(map){road=L.geoJSON(r.geometry,{style:{color:'#214e3b',weight:5,opacity:.85}}).addTo(map);map.fitBounds(road.getBounds(),{padding:[35,35]});drawMarkers();}
+    if(map){road=L.geoJSON(r.geometry,{style:{color:'#ff8b2c',weight:5,opacity:.85}}).addTo(map);map.fitBounds(road.getBounds(),{padding:[35,35]});drawMarkers();}
     const snap=(data.waypoints||[]).map((p,i)=>p.distance>100?`${stops[i].name}: driving point about ${Math.round(p.distance)} m from its marker`:null).filter(Boolean);
     const minutes=Math.round(r.duration/60),duration=minutes>=60?`${Math.floor(minutes/60)}h ${minutes%60}m`:`${minutes} min`;
     $('summary').innerHTML=`<div><strong>${duration}</strong><small>Estimated driving time</small></div><div><strong>${Math.round(r.distance/1609.344)} mi</strong><small>Driving distance</small></div><div><strong>${stops.length}</strong><small>Reviewed locations</small></div><div class="method">${esc(method)}. First location is fixed; route ends at the final stop. No live traffic, closures, parking, or visit time included.</div>`;$('summary').hidden=false;

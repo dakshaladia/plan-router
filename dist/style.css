@@ -3,3 +3,31 @@
 .stop p.match-warning{color:#925728;background:#fbf1df;border-left:3px solid #cb9e58;padding:8px 11px;max-width:650px}
 
 .logo{font-size:25px;letter-spacing:0}
+
+/* Halloween palette */
+:root{--green:#ff8b2c;--lime:#ffbe75;--ink:#fff0df;--muted:#bfb1a4;--line:#443126;--paper:#12100f;--white:#201916;--orange:#ff8b2c}
+body{background:radial-gradient(ellipse at top right,#48200e55,transparent 55%),var(--paper);color:var(--ink)}
+header{background:#17120f;border-color:var(--line)}
+.brand{color:#ff9a43}.logo{background:#352012;color:#ffad61;border:1px solid #72401f}
+.brand-sub{border-color:#65412b;color:#d5b08c}.intro .eyebrow,.eyebrow{color:#eaa05f}
+h1 span{color:#ff8b2c}.trip-tag{background:#2c1c13;border-color:#674124;color:#ffb673}.trip-tag small{color:#d0ad8c}
+.workspace{background:#201916;border-color:var(--line);box-shadow:0 16px 40px #0005}
+.step{background:#352217;border-color:#714321;color:#ffb572}
+input,textarea,select{background:#17120f;color:#fff0df;border-color:#59402e;color-scheme:dark}
+input::placeholder,textarea::placeholder{color:#a18f7f}input:focus,textarea:focus,select:focus{border-color:#ff932f;box-shadow:0 0 0 3px #ff8b2c28}
+.text-button{color:#ffac62}.primary{background:#f2872b;border-color:#f2872b;color:#1a1009}.primary span{color:#29160b}
+.primary:hover:not(:disabled){background:#ffa34d;border-color:#ffa34d}.secondary,.subtle{background:#2d2119;border-color:#775033;color:#ffc28c}
+.map-top,.map-caption{background:#211811}.map-top i,i{background:#ff932f}.map-dot{border-color:#ff932f}
+#map{background:#352b23}.leaflet-tile-pane{filter:brightness(.78) saturate(.75)}
+.leaflet-control-zoom a{background:#211811!important;color:#ffb575!important;border-color:#5c3d28!important}
+.leaflet-control-attribution{background:#211811e8!important;color:#d9bc9e!important}.leaflet-control-attribution a{color:#ffc08a!important}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#261c15;color:#ffeddc}.leaflet-container a.leaflet-popup-close-button{color:#ffb575}
+.empty{border-color:#654329;color:#d69963;background:#211811}.empty>span:first-child{color:#ff973f}.empty h3{color:#ffc08a}.empty-number{color:#a66c3f}
+.stop{background:#211914;border-color:#513726}.number{background:#40291a;border-color:#84512c;color:#ffc18a}
+.badge{background:#4c3015;color:#ffd291}.badge.ok{background:#3b341a;color:#f4d690}
+.review button,.move button{background:#39271b;border-color:#785131;color:#ffd0a4}.refine button{background:#2b2018;border-color:#705035;color:#ffc58f}
+.summary{background:#352115;border-color:#85502a}.summary small,.summary .method{color:#e9bd94}
+.links a{background:#ef8b34;border-color:#ffad64;color:#1c110a}.stop p.match-warning{background:#432819;border-color:#ffad53;color:#ffd4ad}
+#status.error{color:#ffac88}.pin{background:#e87721;color:#160e09;border-color:#ffe5c8}.pin.unconfirmed{background:#51321e;color:#ffe2b8;border-color:#ffb36d}
+#map-fallback{background:#2a1c13;color:#ffe2c5}.brand-mini{color:#ff9e4d}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline-color:#ffb968}
