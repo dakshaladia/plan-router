@@ -38,7 +38,7 @@ Source is in `dist/`; the folder contains the actual site assets and is intentio
 
 ## Microsoft Clarity analytics
 
-The Clarity integration is prepared but **disabled until a project ID is configured**. Create a website project in [Microsoft Clarity](https://clarity.microsoft.com/), copy the public project ID from Settings → Setup (the value after `clarity.ms/tag/`), and set `CLARITY_PROJECT_ID` in `dist/config.js`. Push the change to trigger your connected Vercel deployment. This is a public identifier, not a secret key.
+The Clarity integration is configured with project ID `z6hmxf2iwa` and loads on deployed websites after visitor consent. Create a website project in [Microsoft Clarity](https://clarity.microsoft.com/), copy the public project ID from Settings → Setup (the value after `clarity.ms/tag/`), and set `CLARITY_PROJECT_ID` in `dist/config.js`. Push the change to trigger your connected Vercel deployment. This is a public identifier, not a secret key.
 
 Visitors can allow or decline analytics, and reopen Analytics preferences in the footer. Clarity only loads after opt-in; ads storage is denied. Localhost previews are excluded. Therefore dashboard counts cover consenting visitors whose browsers allow Clarity, rather than every visitor.
 
